@@ -1,0 +1,1 @@
+# Core module - Contains shared components and configurations 
