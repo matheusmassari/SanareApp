@@ -3,19 +3,27 @@ from pydantic_settings import BaseSettings
 from pydantic import field_validator
 import os
 
+from app.core.constants import (
+    API_V1_STR,
+    PROJECT_NAME,    
+    DEFAULT_HOST,
+    DEFAULT_PORT,
+    JWT_ALGORITHM,
+)
+
 
 class Settings(BaseSettings):
     """
     Application settings using Pydantic BaseSettings
     """
     # API
-    API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "SanareApp"
+    API_V1_STR: str = API_V1_STR
+    PROJECT_NAME: str = PROJECT_NAME
     DEBUG: bool = True
     
     # Server
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    HOST: str = DEFAULT_HOST
+    PORT: int = DEFAULT_PORT
     
     # Database - Using environment variables with secure defaults
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "sanare_user")
@@ -26,7 +34,7 @@ class Settings(BaseSettings):
     # JWT - Must be provided via environment variables
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-    ALGORITHM: str = "HS256"
+    ALGORITHM: str = JWT_ALGORITHM
     
     # CORS
     BACKEND_CORS_ORIGINS: str = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://localhost:8000")

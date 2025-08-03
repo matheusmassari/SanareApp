@@ -1,0 +1,8 @@
+API_V1_STR = "/api/v1"
+PROJECT_NAME = "SanareApp"
+DEBUG = True
+
+DEFAULT_HOST = "0.0.0.0"
+DEFAULT_PORT = 8000
+
+JWT_ALGORITHM = "HS256"
