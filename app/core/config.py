@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     # CORS
     BACKEND_CORS_ORIGINS: str = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://localhost:8000")
     
+    # OAuth Configuration
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    OAUTH_STATE_SECRET: str = os.getenv("OAUTH_STATE_SECRET", "")
+    
     def get_cors_origins(self) -> List[str]:
         """Convert CORS origins string to list"""
         if isinstance(self.BACKEND_CORS_ORIGINS, str):

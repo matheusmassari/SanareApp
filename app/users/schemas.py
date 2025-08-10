@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr, validator
 from datetime import datetime
-from app.users.models import UserRole
+from app.users.models import UserRole, OAuthProvider
 
 
 class UserBase(BaseModel):
@@ -71,8 +71,12 @@ class UserPublic(BaseModel):
     email: EmailStr
     username: str
     full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
     is_active: bool
     role: UserRole
+    is_oauth_user: bool = False
+    email_verified: bool = False
+    oauth_providers: List[str] = []
     created_at: datetime
     
     class Config:
@@ -93,4 +97,67 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """Schema for token data"""
-    user_id: Optional[int] = None 
+    user_id: Optional[int] = None
+
+
+# OAuth Schemas
+class OAuthUserInfo(BaseModel):
+    """Schema for OAuth user information from provider"""
+    id: str
+    email: str
+    name: Optional[str] = None
+    picture: Optional[str] = None
+    email_verified: bool = False
+
+
+class OAuthLoginRequest(BaseModel):
+    """Schema for OAuth login request"""
+    provider: OAuthProvider
+    redirect_uri: str
+
+
+class OAuthLoginResponse(BaseModel):
+    """Schema for OAuth login response"""
+    authorization_url: str
+    state: str
+
+
+class OAuthCallbackRequest(BaseModel):
+    """Schema for OAuth callback"""
+    code: str
+    state: str
+    provider: OAuthProvider
+
+
+class OAuthAccount(BaseModel):
+    """Schema for OAuth account information"""
+    id: int
+    provider: OAuthProvider
+    provider_user_id: str
+    provider_user_email: str
+    provider_user_name: Optional[str] = None
+    provider_avatar_url: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
+
+
+class UserWithOAuth(UserPublic):
+    """Schema for user with OAuth accounts"""
+    oauth_accounts: List[OAuthAccount] = []
+    
+    class Config:
+        orm_mode = True
+
+
+class LinkOAuthRequest(BaseModel):
+    """Schema for linking OAuth account to existing user"""
+    provider: OAuthProvider
+    code: str
+    state: str
+
+
+class UnlinkOAuthRequest(BaseModel):
+    """Schema for unlinking OAuth account"""
+    provider: OAuthProvider 

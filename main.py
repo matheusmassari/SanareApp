@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.users.routes import router as users_router
+from app.oauth.routes import router as oauth_router
 
 
 @asynccontextmanager
@@ -95,6 +96,12 @@ app.include_router(
     users_router,
     prefix=f"{settings.API_V1_STR}/users",
     tags=["users"]
+)
+
+app.include_router(
+    oauth_router,
+    prefix=f"{settings.API_V1_STR}/oauth",
+    tags=["oauth"]
 )
 
 # Add more routers here as the application grows
