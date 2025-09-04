@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from datetime import datetime
 from app.users.models import UserRole, OAuthProvider
 
@@ -21,13 +21,13 @@ class UserCreate(BaseModel):
     password: str
     role: UserRole = UserRole.USER
     
-    @validator('password')
+    @field_validator('password')
     def validate_password(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         return v
     
-    @validator('username')
+    @field_validator('username')
     def validate_username(cls, v):
         if len(v) < 3:
             raise ValueError('Username must be at least 3 characters long')
@@ -48,7 +48,7 @@ class UserUpdatePassword(BaseModel):
     current_password: str
     new_password: str
     
-    @validator('new_password')
+    @field_validator('new_password')
     def validate_new_password(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
@@ -61,8 +61,7 @@ class UserInDB(UserBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserPublic(BaseModel):
@@ -73,14 +72,13 @@ class UserPublic(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     is_active: bool
-    role: UserRole
+    role: str
     is_oauth_user: bool = False
     email_verified: bool = False
-    oauth_providers: List[str] = []
+    oauth_providers: List[str] = Field(default_factory=list)
     created_at: datetime
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):
@@ -139,16 +137,14 @@ class OAuthAccount(BaseModel):
     provider_avatar_url: Optional[str] = None
     created_at: datetime
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserWithOAuth(UserPublic):
     """Schema for user with OAuth accounts"""
-    oauth_accounts: List[OAuthAccount] = []
+    oauth_accounts: List[OAuthAccount] = Field(default_factory=list)
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LinkOAuthRequest(BaseModel):

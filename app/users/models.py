@@ -8,9 +8,29 @@ from app.core.database import Base
 
 
 class UserRole(str, enum.Enum):
-    """User roles enum"""
-    ADMIN = "admin"
-    USER = "user"
+    """User roles enum with hierarchy"""
+    USER = "USER"           # Usuário geral (nível 1)
+    MANAGER = "MANAGER"     # Médico/Especialista (nível 2)
+    ADMIN = "ADMIN"         # Administrador (nível 3)
+
+    @property
+    def level(self) -> int:
+        """Get role hierarchy level"""
+        levels = {
+            UserRole.USER: 1,
+            UserRole.MANAGER: 2,
+            UserRole.ADMIN: 3
+        }
+        return levels[self]
+    
+    def can_access(self, required_role: 'UserRole') -> bool:
+        """Check if this role can access resources requiring another role"""
+        return self.level >= required_role.level
+    
+    @classmethod
+    def get_accessible_roles(cls, user_role: 'UserRole') -> list['UserRole']:
+        """Get list of roles this user can manage"""
+        return [role for role in cls if user_role.level >= role.level]
 
 
 class OAuthProvider(str, enum.Enum):
@@ -56,7 +76,15 @@ class User(Base):
     @property
     def oauth_providers(self) -> list[str]:
         """Get list of connected OAuth providers"""
-        return [account.provider for account in self.oauth_accounts]
+        # Avoid triggering lazy load in async context (which would raise MissingGreenlet)
+        accounts = self.__dict__.get("oauth_accounts")
+        if accounts is None:
+            return []
+        providers: list[str] = []
+        for account in accounts:
+            provider = account.provider
+            providers.append(provider.value if hasattr(provider, "value") else str(provider))
+        return providers
 
 
 class UserOAuthAccount(Base):

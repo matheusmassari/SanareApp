@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_async_session
 from app.core.auth import get_current_active_user
-from app.users.models import User, OAuthProvider
+from app.users.models import User, OAuthProvider, UserRole
 from app.users.schemas import (
     OAuthLoginRequest, 
     OAuthLoginResponse, 
@@ -155,7 +155,18 @@ async def get_current_user_with_oauth(
     oauth_accounts = await oauth_service.get_user_oauth_accounts(current_user.id)
     
     # Create response with OAuth accounts
-    user_data = current_user.__dict__.copy()
-    user_data['oauth_accounts'] = oauth_accounts
-    
-    return UserWithOAuth(**user_data)
+    # Construir resposta de forma segura
+    return UserWithOAuth(
+        id=current_user.id,
+        email=current_user.email,
+        username=current_user.username,
+        full_name=current_user.full_name,
+        avatar_url=current_user.avatar_url,
+        is_active=current_user.is_active,
+        role=current_user.role.value if hasattr(current_user.role, 'value') else current_user.role,
+        is_oauth_user=current_user.is_oauth_user,
+        email_verified=current_user.email_verified,
+        oauth_providers=current_user.oauth_providers,
+        created_at=current_user.created_at,
+        oauth_accounts=oauth_accounts,
+    )

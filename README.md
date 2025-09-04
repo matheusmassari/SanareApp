@@ -107,6 +107,21 @@ A aplicação estará disponível em:
 - **Documentação**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
+### 3.1 Setup de desenvolvimento Local
+
+Comandos para criar ambiente virtual local, ativar e instalar dependencias:
+
+```bash
+# 1. Criar ambiente virtual local
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate     # Windows
+
+# 2. Instalar dependências
+pip install -r requirements.txt
+```
+
 ### 4. Executar migrações
 
 ```bash
